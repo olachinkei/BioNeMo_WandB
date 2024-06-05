@@ -45,14 +45,16 @@ def main(cfg) -> None:
     logging.info("\n\n************** Experiment configuration ***********")
     logging.info(f'\n{OmegaConf.to_yaml(cfg)}')
         
-    if cfg.wandb_artifacts.wandb_use_artifacts:
-        artifact_dir = WandbLogger.download_artifact(artifact=cfg.wandb_artifacts.wandb_use_artifact_path)
-        cfg.model.data.dataset_path=artifact_dir+cfg.model.data.dataset_path
-        cfg.model.data.uf90.uniref90_path=artifact_dir+cfg.model.data.uf90.uniref90_path
-        
-    callbacks = setup_dwnstr_task_validation_callbacks(cfg)
+    
 
     if cfg.do_training:
+        if cfg.wandb_artifacts.wandb_use_artifacts:
+            artifact_dir = WandbLogger.download_artifact(artifact=cfg.wandb_artifacts.wandb_use_artifact_path)
+            cfg.model.data.dataset_path=artifact_dir+cfg.model.data.dataset_path
+            cfg.model.data.uf90.uniref90_path=artifact_dir+cfg.model.data.uf90.uniref90_path
+
+        callbacks = setup_dwnstr_task_validation_callbacks(cfg)
+        
         trainer = setup_trainer(cfg, callbacks=callbacks)
         logging.info("************** Starting Training ***********")
         if cfg.restore_from_path:
